@@ -1,70 +1,44 @@
 import scrapy
 import re
-from ..items import Publication
+import czlscrape.loaders as loaders
+import czlscrape.items as items
 
-INDEX_URL = 'http://www.aippimm.ro/categorie/transparenta-decizionala---modificare-hg-96-2011/'
-
-def text_from(sel):
-    return (sel.xpath('string(.)').extract_first() or "").strip()
-
-def guess_publication_type(text):
-    text = text.lower()
-    text = re.sub(r'[șş]', 's', text)
-    text = re.sub(r'[țţ]', 't', text)
-    text = re.sub(r'[ăâ]', 'a', text)
-    text = re.sub(r'[î]', 'i', text)
-    rules = [
-        ("lege", "LEGE"),
-        ("hotarare de guvern", "HG"),
-        ("hotarare a guvernului", "HG"),
-        ("hg", "HG"),
-        ("ordonanta de guvern", "OG"),
-        ("oug", "OUG"),
-        ("ordonanta de urgenta", "OUG"),
-        ("ordin de ministru", "OM"),
-        ("ordinul", "OM"),
-    ]
-    for substr, publication_type in rules:
-        if substr in text:
-            return publication_type
-    else:
-        return "OTHER"
 
 class AfaceriSpider(scrapy.Spider):
 
     name = 'afaceri'
-    start_urls = [INDEX_URL]
+    def start_requests(self):
+        url = str('http://www.aippimm.ro/categorie/'
+                  'transparenta-decizionala---modificare-hg-96-2011/')
+        yield scrapy.Request(url)
 
     def parse(self, response):
         for article in response.css('.article_container'):
             link = article.css('a.lead_subcat')
-            title = text_from(link)
+            title = ''.join(link.xpath('.//text()').extract())
             if not title:
                 continue
-
+            date_extract = ''.join(article.xpath('./ul[contains(@class, \'lead\')]//text()').extract())
             date_match = re.search(
                 r'(?P<day>\d{2})\.(?P<month>\d{2})\.(?P<year>\d{4})$',
-                text_from(article.css('ul.lead')),
+                date_extract,
             )
             date = "{year}-{month}-{day}".format(**date_match.groupdict())
 
             identifier = link.css('::attr(href)').extract_first().split('/')[-1]
-            publication_type = guess_publication_type(title)
 
-            documents = [
-                {
+            documents = [{
                     'type': href.split('.')[-1],
                     'url': href,
-                }
-                for href in article.css('a.files::attr(href)').extract()
-            ]
+                } for href in article.css('a.files::attr(href)').extract()]
 
-            yield Publication(
-                identifier=identifier,
-                title=title,
-                institution='afaceri',
-                description=title,
-                type=publication_type,
-                date=date,
-                documents=documents,
-            )
+            publication_loader = loaders.PublicationLoader(
+                                                        items.PublicationItem())
+
+            publication_loader.add_value('date', date)
+            publication_loader.add_value('documents', documents)
+            publication_loader.add_value('identifier', identifier)
+            publication_loader.add_value('institution', AfaceriSpider.name)
+            publication_loader.add_value('title', title)
+
+            yield publication_loader.load_item()

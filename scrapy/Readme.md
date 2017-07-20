@@ -1,4 +1,6 @@
-# Scrapere scrise cu scrapy
+![Ce Zice Legea Logo](http://i.imgur.com/x8NgTPD.png)
+
+# _Catalog Politic_—Scrape (Scrapy)
 
 O colecție de scrapere implementate folosind [scrapy](https://scrapy.org).
 Fiecărei instituții îi corespunde un scraper care descarcă publicații de pe site.
