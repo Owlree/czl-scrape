@@ -1,4 +1,4 @@
-![Ce Zice Legea Logo](http://i.imgur.com/x8NgTPD.png)
+![Ce Zice Legea Logo](http://i.imgur.com/3qbKpRd.png)
 
 # _Ce Zice Legea_—Scrape (Scrapy)
 
