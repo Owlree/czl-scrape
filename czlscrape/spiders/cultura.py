@@ -51,4 +51,6 @@ class CulturaSpider(scrapy.Spider):
                 documents.append(document)
         publication_loader.add_value('documents', documents)
 
+        publication_loader.add_value('institution', CulturaSpider.name)
+
         yield publication_loader.load_item()
