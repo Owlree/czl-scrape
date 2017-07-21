@@ -8,8 +8,8 @@ class AfaceriSpider(scrapy.Spider):
 
     """www.aippim.ro
 
-       FIELDS CRAWLED:
-       date, documents, institution, title
+   FIELDS CRAWLED:
+   date, documents, institution, title
     """
 
     name = 'afaceri'
