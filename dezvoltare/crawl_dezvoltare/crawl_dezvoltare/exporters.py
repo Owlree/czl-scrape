@@ -1,1 +1,0 @@
-from scrapy.exporters import BaseItemExporter

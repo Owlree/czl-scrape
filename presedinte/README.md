@@ -1,7 +1,0 @@
-# Presedintia
-
-## Tehnologie
-
-## Instructiuni
-
-## Exceptii
