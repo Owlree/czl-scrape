@@ -6,6 +6,18 @@ import czlscrape.items as items
 
 class AfaceriSpider(scrapy.Spider):
 
+    """www.aippim.ro
+
+       FIELDS CRAWLED:
+         contact...............NO
+         date.................YES
+         documents............YES
+         feedback_days.........NO
+         institution..........YES
+         max_feedback_date.....NO
+         title................YES
+    """
+
     name = 'afaceri'
     def start_requests(self):
         url = str('http://www.aippimm.ro/categorie/'
@@ -16,16 +28,16 @@ class AfaceriSpider(scrapy.Spider):
         for article in response.css('.article_container'):
             link = article.css('a.lead_subcat')
             title = ''.join(link.xpath('.//text()').extract())
+            # TODO Log warning.
             if not title:
                 continue
-            date_extract = ''.join(article.xpath('./ul[contains(@class, \'lead\')]//text()').extract())
+            date_extract = ''.join(article.xpath(
+                './ul[contains(@class, \'lead\')]//text()').extract())
             date_match = re.search(
                 r'(?P<day>\d{2})\.(?P<month>\d{2})\.(?P<year>\d{4})$',
                 date_extract,
             )
             date = "{year}-{month}-{day}".format(**date_match.groupdict())
-
-            identifier = link.css('::attr(href)').extract_first().split('/')[-1]
 
             documents = [{
                     'type': href.split('.')[-1],
@@ -33,11 +45,10 @@ class AfaceriSpider(scrapy.Spider):
                 } for href in article.css('a.files::attr(href)').extract()]
 
             publication_loader = loaders.PublicationLoader(
-                                                        items.PublicationItem())
+                items.PublicationItem())
 
             publication_loader.add_value('date', date)
             publication_loader.add_value('documents', documents)
-            publication_loader.add_value('identifier', identifier)
             publication_loader.add_value('institution', AfaceriSpider.name)
             publication_loader.add_value('title', title)
 
