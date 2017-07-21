@@ -9,13 +9,7 @@ class AfaceriSpider(scrapy.Spider):
     """www.aippim.ro
 
        FIELDS CRAWLED:
-         contact...............NO
-         date.................YES
-         documents............YES
-         feedback_days.........NO
-         institution..........YES
-         max_feedback_date.....NO
-         title................YES
+       date, documents, institution, title
     """
 
     name = 'afaceri'
