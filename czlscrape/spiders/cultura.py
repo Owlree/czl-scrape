@@ -13,7 +13,7 @@ class CulturaSpider(scrapy.Spider):
     """www.cultura.ro
 
    FIELDS CRAWLED:
-   documents, title
+   date, documents, title
     """
 
     name = 'cultura'
@@ -35,6 +35,9 @@ class CulturaSpider(scrapy.Spider):
         post_title = post.css('.post-title').xpath('.//text()').extract_first()
         publication_loader.add_value('title', post_title)
 
+        post_created = post.css('.post-created').xpath('.//text()').extract_first()
+        publication_loader.add_value('date', post_created)
+
         documents = []
         for anchor in post.css('a'):
             href = anchor.css('::attr(href)').extract_first()
@@ -42,8 +45,8 @@ class CulturaSpider(scrapy.Spider):
             if helpers.checkers.is_document(url):
                 name = anchor.css('::text').extract_first()
                 document = {
-                    name: name,
-                    url: url
+                    'name': name,
+                    'url': url
                 }
                 documents.append(document)
         publication_loader.add_value('documents', documents)
